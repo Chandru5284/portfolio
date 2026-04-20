@@ -1,65 +1,128 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from "react";
+import Navbar from "@/components/navbar";
+import Hero from "@/components/hero";
+import TrustSection from "@/components/trust-section";
+import AboutSnippet from "@/components/about-snippet";
+import ProjectsSection from "@/components/projects-section";
+import ServicesSection from "@/components/services-section";
+import ProcessSection from "@/components/process-section";
+import ProductsSection from "@/components/products-section";
+import Testimonials from "@/components/testimonials";
+import ContactSection from "@/components/contact-section";
+import WhatsAppButton from "@/components/whatsapp-button";
+import Footer from "@/components/footer";
+import ProjectModal from "@/components/project-modal";
+import ServiceActionModal from "@/components/service-action-modal";
 
 export default function Home() {
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+
+  // Service Modal State
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [selectedServiceName, setSelectedServiceName] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+
+  // Handle body scroll lock
+  useEffect(() => {
+    if (isProjectModalOpen || isServiceModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isProjectModalOpen, isServiceModalOpen]);
+
+  const handleOpenProjectModal = (project: any) => {
+    setSelectedProject(project);
+    setIsProjectModalOpen(true);
+  };
+
+  const handleOpenServiceModal = (serviceName: string) => {
+    setSelectedServiceName(serviceName);
+    setIsServiceModalOpen(true);
+  };
+
+  const handleContinueToForm = (message: string) => {
+    setContactMessage(message);
+    setIsServiceModalOpen(false);
+
+    // Smooth scroll to contact section
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen">
+      {/* <Navbar />
+      <Hero />
+      <TrustSection />
+      <AboutSnippet />
+      <div className="bg-gradient-to-b from-transparent via-primary/5 to-transparent">
+        <ProjectsSection onOpenModal={handleOpenProjectModal} />
+      </div>
+      <ServicesSection onOpenModal={handleOpenServiceModal} />
+      <ProcessSection />
+      <ProductsSection />
+      <Testimonials />
+      <ContactSection initialMessage={contactMessage} />
+      <WhatsAppButton />
+      <Footer /> */}
+
+
+      <Navbar />
+      
+      <div className="space-y-0">
+        <Hero />
+        
+        <div className="bg-white dark:bg-zinc-950">
+          <TrustSection />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="bg-gray-50 dark:bg-white/[0.02] border-y border-gray-100 dark:border-white/5">
+          <ProjectsSection onOpenModal={handleOpenProjectModal} />
         </div>
-      </main>
-    </div>
+
+        <div className="bg-white dark:bg-zinc-950">
+          <AboutSnippet />
+        </div>
+
+        <div className="bg-gray-50 dark:bg-white/[0.02] border-y border-gray-100 dark:border-white/5">
+          <ServicesSection onOpenModal={handleOpenServiceModal} />
+        </div>
+
+        <div className="bg-white dark:bg-zinc-950">
+          <ProcessSection />
+        </div>
+
+        <div className="bg-gray-50 dark:bg-white/[0.02] border-y border-gray-100 dark:border-white/5">
+          <Testimonials />
+        </div>
+
+        <div className="bg-white dark:bg-zinc-950">
+          <ContactSection initialMessage={contactMessage} />
+        </div>
+      </div>
+
+      <WhatsAppButton />
+      <Footer />
+
+
+      <ProjectModal
+        isOpen={isProjectModalOpen}
+        onClose={() => setIsProjectModalOpen(false)}
+        project={selectedProject}
+      />
+
+      <ServiceActionModal
+        isOpen={isServiceModalOpen}
+        onClose={() => setIsServiceModalOpen(false)}
+        serviceName={selectedServiceName}
+        onContinueToForm={handleContinueToForm}
+      />
+    </main>
   );
 }
