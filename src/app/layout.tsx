@@ -6,9 +6,16 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Premium Full-Stack Developer | Lead-Gen Portfolio",
-  description: "Specialized in SaaS, eCommerce, and Mobile App Development. Building scalable solutions that grow your business.",
+  title: "Chandru.dev | Full Stack Developer for Scalable Web Apps",
+  description: "Building high-performance websites and scalable web applications using modern technologies.",
   keywords: ["Next.js Developer", "React Developer", "SaaS Builder", "Mobile Apps", "Capacitor"],
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
