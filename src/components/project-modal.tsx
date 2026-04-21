@@ -26,35 +26,38 @@ interface ProjectModalProps {
   project: Project | null;
 }
 
-// Memoized Image Component to prevent unnecessary parent re-renders
-const ImagePreview = memo(({ src, alt, priority }: { src: string; alt: string; priority?: boolean }) => {
-  const [isLoading, setIsLoading] = useState(true);
-
+// Optimized Gallery Stack to prevent decoding lag by rendering all images upfront
+const GalleryStack = memo(({ images, activeIndex, title }: { images: string[]; activeIndex: number; title: string }) => {
   return (
-    <div className="relative w-full h-full flex items-center justify-center min-h-[220px] sm:min-h-[350px]">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-zinc-800 animate-pulse rounded-xl">
-          <Loader2 className="w-8 h-8 text-primary animate-spin opacity-20" />
+    <div className="relative w-full aspect-video md:aspect-[4/3] max-h-[60vh] md:max-h-[70vh] flex items-center justify-center overflow-hidden rounded-xl bg-gray-50 dark:bg-zinc-900/50">
+      {images.map((src, idx) => (
+        <div
+          key={`${title}-${idx}`}
+          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-500 ease-in-out transform-gpu ${activeIndex === idx ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+            }`}
+          style={{
+            willChange: 'opacity',
+            transform: 'translateZ(0)' // Force GPU acceleration
+          }}
+        >
+          <Image
+            src={src}
+            alt={`${title} - screen ${idx + 1}`}
+            width={1200}
+            height={800}
+            className="w-full h-auto max-h-full object-contain mx-auto"
+            priority={idx === 0} // Only prioritize the very first image
+            quality={85}
+          />
         </div>
-      )}
-      <Image
-        src={src}
-        alt={alt}
-        width={1200}
-        height={800}
-        className={`w-full h-auto max-h-[60vh] md:max-h-[70vh] object-contain mx-auto transition-all duration-500 ${isLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-          }`}
-        priority={priority}
-        onLoad={() => setIsLoading(false)}
-        sizes="(max-width: 768px) 100vw, 1200px"
-      />
+      ))}
     </div>
   );
 });
 
-ImagePreview.displayName = 'ImagePreview';
+GalleryStack.displayName = 'GalleryStack';
 
-export default function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
+const ProjectModal = memo(({ isOpen, onClose, project }: ProjectModalProps) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // Handle ESC key
@@ -66,7 +69,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  // Preload gallery images for instant switching
+  // Preload gallery images (browser handles decoding once rendered in the stack)
   useEffect(() => {
     if (isOpen && project?.gallery) {
       project.gallery.forEach((src) => {
@@ -87,9 +90,6 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
   const images = (project.gallery && project.gallery.length > 0)
     ? project.gallery
     : [project.image];
-
-  const currentImage = images[activeImageIndex] || images[0];
-
 
   return (
     <AnimatePresence>
@@ -138,24 +138,13 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
 
               {/* Gallery Section */}
               <div className="space-y-6">
-                {/* Main Preview */}
+                {/* Main Preview Stack */}
                 <div className="relative w-full rounded-xl overflow-hidden border border-gray-100 dark:border-white/5 shadow-xl bg-gray-50 dark:bg-zinc-900/50 p-2 md:p-4">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={`${project.title}-${activeImageIndex}`}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className="w-full h-full"
-                    >
-                      <ImagePreview
-                        src={currentImage}
-                        alt={`${project.title} - screen ${activeImageIndex + 1}`}
-                        priority={activeImageIndex === 0}
-                      />
-                    </motion.div>
-                  </AnimatePresence>
+                  <GalleryStack
+                    images={images}
+                    activeIndex={activeImageIndex}
+                    title={project.title}
+                  />
                 </div>
 
                 {/* Thumbnails */}
@@ -170,7 +159,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
                         <button
                           key={idx}
                           onClick={() => setActiveImageIndex(idx)}
-                          className={`relative w-24 md:w-32 aspect-video rounded-lg overflow-hidden flex-shrink-0 transition-all border-2 bg-gray-100 dark:bg-zinc-800 ${activeImageIndex === idx
+                          className={`cursor-pointer relative w-24 md:w-32 aspect-video rounded-lg overflow-hidden flex-shrink-0 transition-all border-2 bg-gray-100 dark:bg-zinc-800 ${activeImageIndex === idx
                             ? "border-primary scale-105 shadow-lg"
                             : "border-transparent opacity-60 hover:opacity-100"
                             }`}
@@ -273,4 +262,8 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
       )}
     </AnimatePresence>
   );
-}
+});
+
+ProjectModal.displayName = 'ProjectModal';
+
+export default ProjectModal;
