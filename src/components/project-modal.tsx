@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, ExternalLink, Rocket, Image as ImageIcon } from 'lucide-react';
+import { X, CheckCircle2, ExternalLink, Rocket, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -26,6 +26,34 @@ interface ProjectModalProps {
   project: Project | null;
 }
 
+// Memoized Image Component to prevent unnecessary parent re-renders
+const ImagePreview = memo(({ src, alt, priority }: { src: string; alt: string; priority?: boolean }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center min-h-[220px] sm:min-h-[350px]">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-zinc-800 animate-pulse rounded-xl">
+          <Loader2 className="w-8 h-8 text-primary animate-spin opacity-20" />
+        </div>
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        width={1200}
+        height={800}
+        className={`w-full h-auto max-h-[60vh] md:max-h-[70vh] object-contain mx-auto transition-all duration-500 ${isLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+          }`}
+        priority={priority}
+        onLoad={() => setIsLoading(false)}
+        sizes="(max-width: 768px) 100vw, 1200px"
+      />
+    </div>
+  );
+});
+
+ImagePreview.displayName = 'ImagePreview';
+
 export default function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -37,6 +65,16 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
+
+  // Preload gallery images for instant switching
+  useEffect(() => {
+    if (isOpen && project?.gallery) {
+      project.gallery.forEach((src) => {
+        const img = new window.Image();
+        img.src = src;
+      });
+    }
+  }, [isOpen, project]);
 
   // Reset image index when modal opens with a new project
   useEffect(() => {
@@ -50,9 +88,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     ? project.gallery
     : [project.image];
 
-  // Derived safe image to prevent crashes during state lag (switching projects)
   const currentImage = images[activeImageIndex] || images[0];
-
 
 
   return (
@@ -85,7 +121,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
             </button>
 
             {/* Scrollable Content Area */}
-            <div className="overflow-y-auto p-5 sm:p-8 md:p-10 space-y-8 md:space-y-12">
+            <div className="overflow-y-auto p-5 sm:p-8 md:p-10 space-y-8 md:space-y-12 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-white/10">
 
               {/* Header */}
               <div className="space-y-4">
@@ -103,26 +139,21 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
               {/* Gallery Section */}
               <div className="space-y-6">
                 {/* Main Preview */}
-                <div className="relative w-full rounded-xl overflow-hidden border border-gray-100 dark:border-white/5 shadow-xl bg-gray-50 dark:bg-zinc-900/50 p-2 md:p-4 flex items-center justify-center min-h-[220px] sm:min-h-[300px] max-h-[60vh] md:max-h-[70vh]">
+                <div className="relative w-full rounded-xl overflow-hidden border border-gray-100 dark:border-white/5 shadow-xl bg-gray-50 dark:bg-zinc-900/50 p-2 md:p-4">
                   <AnimatePresence mode="wait">
                     <motion.div
-                      key={activeImageIndex}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="relative w-full h-full flex items-center justify-center"
+                      key={`${project.title}-${activeImageIndex}`}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className="w-full h-full"
                     >
-                      {currentImage && (
-                        <Image
-                          src={currentImage}
-                          alt={`${project.title} - screen ${activeImageIndex + 1}`}
-                          width={1200}
-                          height={800}
-                          className="w-full h-auto max-h-[60vh] md:max-h-[70vh] object-contain mx-auto"
-                          priority
-                        />
-                      )}
+                      <ImagePreview
+                        src={currentImage}
+                        alt={`${project.title} - screen ${activeImageIndex + 1}`}
+                        priority={activeImageIndex === 0}
+                      />
                     </motion.div>
                   </AnimatePresence>
                 </div>
