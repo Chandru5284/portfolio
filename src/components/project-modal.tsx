@@ -54,6 +54,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
   const currentImage = images[activeImageIndex] || images[0];
 
 
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -143,12 +144,12 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
                             : "border-transparent opacity-60 hover:opacity-100"
                             }`}
                         >
-                          <Image 
-                            src={img} 
-                            alt={`${project.title} screen thumbnail ${idx + 1}`} 
-                            fill 
+                          <Image
+                            src={img}
+                            alt={`${project.title} screen thumbnail ${idx + 1}`}
+                            fill
                             sizes="256px"
-                            className="object-contain" 
+                            className="object-contain"
                           />
                         </button>
                       ))}
