@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: "Chandru.dev",
     images: [
       {
-        url: "/og-image.jpg", // your new image
+        url: "/og-image.jpeg", // your new image
         width: 1200,
         height: 630,
       },
