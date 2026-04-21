@@ -16,6 +16,20 @@ export const metadata: Metadata = {
     ],
     apple: "/favicon.png",
   },
+  openGraph: {
+    title: "Chandru.dev | Full Stack Developer for Scalable Web Apps",
+    description: "Building high-performance websites and scalable web applications using modern technologies.",
+    url: "https://chandramohan-xi.vercel.app",
+    siteName: "Chandru.dev",
+    images: [
+      {
+        url: "/og-image.jpg", // your new image
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: "website",
+  },
 };
 
 export default function RootLayout({
