@@ -154,7 +154,7 @@ export default function ContactSection({ initialMessage }: ContactSectionProps) 
 						{
 							icon: Mail,
 							label: "Email",
-							value: "chandrucm5284@email.com",
+							value: "chandrucm5284@gmail.com",
 							href: "mailto:chandrucm5284@gmail.com",
 							color: "hover:text-blue-500"
 						},

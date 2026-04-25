@@ -92,7 +92,7 @@ export default function Footer() {
           <h4 className="text-gray-900 dark:text-white text-xs font-black uppercase tracking-[0.3em]">Get In Touch</h4>
           <ul className="space-y-6">
             <li className="group">
-              <a href="mailto:chandru@email.com" className="flex items-center gap-4 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white transition-all group">
+              <a href="mailto:chandru@gmail.com" className="flex items-center gap-4 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white transition-all group">
                 <div className="w-11 h-11 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500 shadow-sm">
                   <Mail size={18} />
                 </div>
